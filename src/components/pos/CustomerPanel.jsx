@@ -1,10 +1,4 @@
-import { useState } from "react";
-
-export default function CustomerPanel() {
-  const [query, setQuery] = useState(
-    "Budi Santoso - 0812-3456-7890 | Poin: 240 Pts | Gold Member"
-  );
-
+export default function CustomerPanel({ query, setQuery }) {
   return (
     <div className="p-space-lg rounded-full bg-surface-container-lowest shadow-sm flex flex-col gap-space-md">
       <div className="flex items-center justify-between">

@@ -20,6 +20,9 @@ export default function PaymentSection({
   setPayTab,
   payMethod,
   setPayMethod,
+  onProcess,
+  saving,
+  saveError,
 }) {
   return (
     <>
@@ -121,17 +124,28 @@ export default function PaymentSection({
 
         {/* 6. Aksi Kasir Utama */}
         <div className="flex flex-col gap-space-sm pt-space-xs">
+          {saveError && (
+            <div className="px-space-md py-space-xs rounded-xl bg-error-container text-on-error-container font-label-md text-label-md">
+              {saveError}
+            </div>
+          )}
           <button
-            className="w-full py-space-md px-space-lg rounded-xl bg-primary-container hover:bg-black text-on-primary font-headline-sm text-headline-sm flex items-center justify-center gap-space-sm shadow-md transition-all group"
+            className="w-full py-space-md px-space-lg rounded-xl bg-primary-container hover:bg-black text-on-primary font-headline-sm text-headline-sm flex items-center justify-center gap-space-sm shadow-md transition-all group disabled:opacity-60 disabled:cursor-not-allowed"
             type="button"
+            disabled={saving}
+            onClick={onProcess}
           >
             <span className="material-symbols-outlined text-secondary-container group-hover:scale-110 transition-transform">
               print
             </span>
-            <span>Proses &amp; Cetak Struk Thermal</span>
-            <span className="px-space-xs py-0.5 rounded bg-secondary-container text-on-secondary-container font-label-xs text-label-xs">
-              Enter ↵
+            <span>
+              {saving ? "Menyimpan ke Supabase..." : "Proses & Cetak Struk Thermal"}
             </span>
+            {!saving && (
+              <span className="px-space-xs py-0.5 rounded bg-secondary-container text-on-secondary-container font-label-xs text-label-xs">
+                Enter ↵
+              </span>
+            )}
           </button>
           <div className="grid grid-cols-2 gap-space-sm">
             <button

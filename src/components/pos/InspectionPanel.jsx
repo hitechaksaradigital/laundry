@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { INSPECTION_CHIPS, PERFUMES } from "../../data/pos";
 
-export default function InspectionPanel({ perfume, setPerfume }) {
-  const [checked, setChecked] = useState(() =>
-    Object.fromEntries(INSPECTION_CHIPS.map((chip) => [chip.id, chip.checked]))
-  );
+export default function InspectionPanel({
+  perfume,
+  setPerfume,
+  checked,
+  onToggle,
+}) {
   const [note, setNote] = useState("");
-
-  const toggle = (id) => setChecked((state) => ({ ...state, [id]: !state[id] }));
-
   return (
     <div className="p-space-lg rounded-full bg-surface-container-lowest shadow-sm flex flex-col gap-space-md">
       <div className="flex items-center justify-between">
@@ -43,7 +42,7 @@ export default function InspectionPanel({ perfume, setPerfume }) {
               }`}
               type="checkbox"
               checked={checked[chip.id]}
-              onChange={() => toggle(chip.id)}
+              onChange={() => onToggle(chip.id)}
             />
             <span>{chip.label}</span>
           </label>

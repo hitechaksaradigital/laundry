@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { formatRp } from "../../data/pos";
 
 export default function OrderPanel({
@@ -7,14 +6,17 @@ export default function OrderPanel({
   serviceFee,
   discount,
   total,
+  coupon,
+  setCoupon,
   couponApplied,
   pointsUsed,
   onToggleCoupon,
   onTogglePoints,
   onRemove,
+  invoiceNo,
+  queueCode,
+  dateLabel,
 }) {
-  const [coupon, setCoupon] = useState("CLEANHEMAT10");
-
   return (
     <>
       {/* 1. Header Struk No. Faktur Otomatis */}
@@ -22,21 +24,23 @@ export default function OrderPanel({
         <div>
           <div className="flex items-center gap-space-xs">
             <span className="font-headline-sm text-headline-sm text-secondary-container">
-              #INV-20250520-042
+              #{invoiceNo}
             </span>
             <span className="px-space-xs py-0.5 rounded bg-surface-container-highest/20 font-label-xs text-label-xs text-on-primary">
               DRAFT
             </span>
           </div>
           <p className="font-body-sm text-body-sm text-primary-fixed-dim">
-            Tgl: 20 Mei 2025 • 14:28 WIB
+            Tgl: {dateLabel}
           </p>
         </div>
         <div className="text-right">
           <span className="font-label-xs text-label-xs uppercase text-secondary-container">
             Antrean
           </span>
-          <p className="font-headline-lg text-headline-lg font-bold">A-18</p>
+          <p className="font-headline-lg text-headline-lg font-bold">
+            {queueCode}
+          </p>
         </div>
       </div>
 
