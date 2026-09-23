@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PosOperationalBar from "../components/pos/PosOperationalBar";
 import CustomerPanel from "../components/pos/CustomerPanel";
 import ServiceCatalog from "../components/pos/ServiceCatalog";
@@ -8,16 +8,14 @@ import OrderPanel from "../components/pos/OrderPanel";
 import PaymentSection from "../components/pos/PaymentSection";
 import OrderHistory from "../components/pos/OrderHistory";
 import { createOrder } from "../services/orders";
+import { createCustomer, listCustomers } from "../services/customers";
+import { isSupabaseConfigured } from "../lib/supabase";
 import {
   COUPON_DISCOUNT,
-  INITIAL_CART,
   INSPECTION_CHIPS,
   POINTS_DISCOUNT,
   SERVICE_FEE,
 } from "../data/pos";
-
-const DEFAULT_QUERY =
-  "Budi Santoso - 0812-3456-7890 | Poin: 240 Pts | Gold Member";
 
 const DEFAULT_CHECKED = Object.fromEntries(
   INSPECTION_CHIPS.map((chip) => [chip.id, chip.checked])
@@ -44,15 +42,17 @@ const formatDateLabel = () => {
 };
 
 export default function KasirPos() {
-  const [cart, setCart] = useState(INITIAL_CART);
-  const [couponApplied, setCouponApplied] = useState(true);
-  const [pointsUsed, setPointsUsed] = useState(true);
+  const [cart, setCart] = useState([]);
+  const [couponApplied, setCouponApplied] = useState(false);
+  const [pointsUsed, setPointsUsed] = useState(false);
   const [payTab, setPayTab] = useState("lunas");
   const [payMethod, setPayMethod] = useState("tunai");
-  const [cash, setCash] = useState(120000);
+  const [cash, setCash] = useState(0);
   const [perfume, setPerfume] = useState("Sweet Vanilla");
-  const [customerQuery, setCustomerQuery] = useState(DEFAULT_QUERY);
-  const [coupon, setCoupon] = useState("CLEANHEMAT10");
+  const [customerQuery, setCustomerQuery] = useState("");
+  const [customers, setCustomers] = useState([]);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [coupon, setCoupon] = useState("");
   const [checked, setChecked] = useState(DEFAULT_CHECKED);
   const [invoiceNo, setInvoiceNo] = useState(makeInvoice);
   const [queueNum, setQueueNum] = useState(18);
@@ -115,6 +115,40 @@ export default function KasirPos() {
   const toggleInspection = (id) =>
     setChecked((state) => ({ ...state, [id]: !state[id] }));
 
+  useEffect(() => {
+    if (!isSupabaseConfigured) return undefined;
+    let cancelled = false;
+    listCustomers(50)
+      .then((data) => {
+        if (!cancelled) setCustomers(data);
+      })
+      .catch(() => {
+        if (!cancelled) setCustomers([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleQueryChange = (value) => {
+    setCustomerQuery(value);
+    setSelectedCustomer(null);
+  };
+
+  const handleSelectCustomer = (customer) => {
+    setSelectedCustomer(customer);
+    setCustomerQuery(
+      `${customer.name} - ${customer.phone} | Poin: ${customer.points} Pts | ${customer.member_tier} Member`
+    );
+  };
+
+  const handleCreateCustomer = async (form) => {
+    const created = await createCustomer(form);
+    setCustomers((list) => [created, ...list]);
+    handleSelectCustomer(created);
+    return created;
+  };
+
   const handleProcess = async () => {
     setSaveError("");
     setLastSaved(null);
@@ -124,21 +158,25 @@ export default function KasirPos() {
       return;
     }
 
-    const [customerName, rest = ""] = customerQuery.split(" - ");
-    const customerPhone = (rest.split("|")[0] || "").trim();
-    const memberTier = /gold/i.test(customerQuery)
+    const [namePart, rest = ""] = customerQuery.split(" - ");
+    const typedPhone = (rest.split("|")[0] || "").trim();
+    const detectedTier = /gold/i.test(customerQuery)
       ? "Gold"
       : /silver/i.test(customerQuery)
         ? "Silver"
         : /vip|member/i.test(customerQuery)
           ? "Member"
           : "Umum";
+    const customerName = selectedCustomer?.name || namePart?.trim() || "Umum";
+    const customerPhone = selectedCustomer?.phone || typedPhone || null;
+    const memberTier = selectedCustomer?.member_tier || detectedTier;
 
     const payload = {
       invoice_no: invoiceNo,
       queue_code: `A-${queueNum}`,
-      customer_name: customerName?.trim() || "Umum",
-      customer_phone: customerPhone || null,
+      customer_id: selectedCustomer?.id ?? null,
+      customer_name: customerName,
+      customer_phone: customerPhone,
       member_tier: memberTier,
       payment_status: payTab,
       payment_method: payMethod,
@@ -206,7 +244,11 @@ export default function KasirPos() {
         <div className="xl:col-span-7 flex flex-col gap-space-lg">
           <CustomerPanel
             query={customerQuery}
-            setQuery={setCustomerQuery}
+            setQuery={handleQueryChange}
+            customers={customers}
+            selected={selectedCustomer}
+            onSelect={handleSelectCustomer}
+            onCreate={handleCreateCustomer}
           />
           <ServiceCatalog onAdd={addToCart} />
           <InspectionPanel

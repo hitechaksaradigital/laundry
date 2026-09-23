@@ -187,39 +187,6 @@ export const SERVICES = {
   ],
 };
 
-export const INITIAL_CART = [
-  {
-    key: "cks",
-    name: "Cuci Kering Setrika",
-    qty: 5.4,
-    qtyLabel: "5.4 kg",
-    note: "Sweet Vanilla • Catatan: Noda Kerah",
-    unitPrice: 9000,
-    unit: "kg",
-    total: 48600,
-  },
-  {
-    key: "bed-king",
-    name: "Bed Cover King",
-    qty: 1,
-    qtyLabel: "1 pcs",
-    note: "Plastik Seal Vakum",
-    unitPrice: 35000,
-    unit: "pcs",
-    total: 35000,
-  },
-  {
-    key: "sneakers",
-    name: "Sneakers Deep Clean",
-    qty: 1,
-    qtyLabel: "1 psg",
-    note: "UV Steril • Fast Dry",
-    unitPrice: 45000,
-    unit: "psg",
-    total: 45000,
-  },
-];
-
 export const INSPECTION_CHIPS = [
   {
     id: "luntur",
