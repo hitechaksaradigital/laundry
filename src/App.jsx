@@ -3,6 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
 import Dashboard from "./pages/Dashboard";
+import KasirPos from "./pages/KasirPos";
 import Placeholder from "./pages/Placeholder";
 
 export default function App() {
@@ -19,6 +20,7 @@ export default function App() {
         <main className="relative pt-16 w-full px-space-lg bg-background">
           <Routes>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/kasir-pos-transaksi" element={<KasirPos />} />
             <Route path="*" element={<Placeholder />} />
           </Routes>
         </main>
